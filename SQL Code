@@ -1,0 +1,60 @@
+-- 1. Check for NULL values in each column
+
+SELECT 
+  COUNT(*) AS total_rows,
+  SUM(IF(CreditScore IS NULL, 1, 0)) AS null_CreditScore,
+  SUM(IF(Geography IS NULL, 1, 0)) AS null_Geography,
+  SUM(IF(Gender IS NULL, 1, 0)) AS null_Gender,
+  SUM(IF(Age IS NULL, 1, 0)) AS null_Age,
+  SUM(IF(Balance IS NULL, 1, 0)) AS null_Balance,
+  SUM(IF(NumOfProducts IS NULL, 1, 0)) AS null_NumOfProducts,
+  SUM(IF(HasCrCard IS NULL, 1, 0)) AS null_HasCrCard,
+  SUM(IF(IsActiveMember IS NULL, 1, 0)) AS null_IsActiveMember,
+  SUM(IF(EstimatedSalary IS NULL, 1, 0)) AS null_EstimatedSalary
+FROM dataset_name;
+
+-- 2. Example: Replace missing values in CreditScore with the average
+UPDATE dataset_name
+SET CreditScore = (SELECT AVG(CreditScore) FROM dataset_name)
+WHERE CreditScore IS NULL;
+
+-- 3. Find duplicate rows based on CustomerId (assuming CustomerId should be unique)
+DELETE t1
+FROM dataset_name t1
+JOIN (
+  SELECT CustomerId, COUNT(*) AS count_duplicates
+  FROM dataset_name
+  GROUP BY CustomerId
+  HAVING count_duplicates > 1
+) t2 ON t1.CustomerId = t2.CustomerId;
+
+-- 4. Standardize Geography and Gender text fields (convert to lowercase, remove leading/trailing spaces)
+UPDATE dataset_name
+SET Geography = LOWER(TRIM(Geography)),
+    Gender = LOWER(TRIM(Gender));
+
+-- 5.Convert IsActiveMember and HasCrCard to integer type if they are stored as strings
+ALTER TABLE dataset_name
+MODIFY IsActiveMember INT;
+
+ALTER TABLE dataset_name
+MODIFY HasCrCard INT;
+
+-- 6.Ensure EstimatedSalary is numeric
+ALTER TABLE dataset_name
+MODIFY EstimatedSalary DECIMAL(10, 2);
+
+-- 7.Check current data types
+SELECT column_name, column_type
+FROM information_schema.columns
+WHERE table_name = 'dataset_name';
+
+-- 8.Ensure Age is an integer, Balance and EstimatedSalary are numeric
+ALTER TABLE dataset_name
+MODIFY Age INT;
+
+ALTER TABLE dataset_name
+MODIFY Balance DECIMAL(10, 2);
+
+ALTER TABLE dataset_name
+MODIFY EstimatedSalary DECIMAL(10, 2);
