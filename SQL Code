@@ -11,50 +11,50 @@ SELECT
   SUM(IF(HasCrCard IS NULL, 1, 0)) AS null_HasCrCard,
   SUM(IF(IsActiveMember IS NULL, 1, 0)) AS null_IsActiveMember,
   SUM(IF(EstimatedSalary IS NULL, 1, 0)) AS null_EstimatedSalary
-FROM dataset_name;
+FROM churn_modelling;
 
 -- 2. Example: Replace missing values in CreditScore with the average
-UPDATE dataset_name
-SET CreditScore = (SELECT AVG(CreditScore) FROM dataset_name)
+UPDATE churn_modelling
+SET CreditScore = (SELECT AVG(CreditScore) FROM churn_modelling)
 WHERE CreditScore IS NULL;
 
 -- 3. Find duplicate rows based on CustomerId (assuming CustomerId should be unique)
 DELETE t1
-FROM dataset_name t1
+FROM churn_modelling t1
 JOIN (
   SELECT CustomerId, COUNT(*) AS count_duplicates
-  FROM dataset_name
+  FROM churn_modelling
   GROUP BY CustomerId
   HAVING count_duplicates > 1
 ) t2 ON t1.CustomerId = t2.CustomerId;
 
 -- 4. Standardize Geography and Gender text fields (convert to lowercase, remove leading/trailing spaces)
-UPDATE dataset_name
+UPDATE churn_modelling
 SET Geography = LOWER(TRIM(Geography)),
     Gender = LOWER(TRIM(Gender));
 
--- 5.Convert IsActiveMember and HasCrCard to integer type if they are stored as strings
-ALTER TABLE dataset_name
+-- 5. Convert IsActiveMember and HasCrCard to integer type if they are stored as strings
+ALTER TABLE churn_modelling
 MODIFY IsActiveMember INT;
 
-ALTER TABLE dataset_name
+ALTER TABLE churn_modelling
 MODIFY HasCrCard INT;
 
--- 6.Ensure EstimatedSalary is numeric
-ALTER TABLE dataset_name
+-- 6. Ensure EstimatedSalary is numeric
+ALTER TABLE churn_modelling
 MODIFY EstimatedSalary DECIMAL(10, 2);
 
--- 7.Check current data types
+-- 7. Check current data types
 SELECT column_name, column_type
 FROM information_schema.columns
-WHERE table_name = 'dataset_name';
+WHERE table_name = 'churn_modelling';
 
--- 8.Ensure Age is an integer, Balance and EstimatedSalary are numeric
-ALTER TABLE dataset_name
+-- 8. Ensure Age is an integer, Balance and EstimatedSalary are numeric
+ALTER TABLE churn_modelling
 MODIFY Age INT;
 
-ALTER TABLE dataset_name
+ALTER TABLE churn_modelling
 MODIFY Balance DECIMAL(10, 2);
 
-ALTER TABLE dataset_name
+ALTER TABLE churn_modelling
 MODIFY EstimatedSalary DECIMAL(10, 2);
